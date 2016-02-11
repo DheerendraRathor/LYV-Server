@@ -14,9 +14,10 @@ class Book(models.Model):
 class Paragraph(models.Model):
     book = models.ForeignKey(Book, related_name='paragraphs')
     index = models.IntegerField(unique=True)
+    paragraph = models.TextField()
 
 
 class Recording(models.Model):
     paragraph = models.ForeignKey(Paragraph, related_name='recordings')
-    #filename = filefield
+    filename = models.FileField(upload_to='recordings')
 
