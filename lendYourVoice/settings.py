@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'lyv',
+    'account',
     'rest_framework_swagger',
     'rest_framework',
 ]
