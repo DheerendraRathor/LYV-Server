@@ -2,11 +2,12 @@ import facebook
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from .models import UserToken, UserProfile
-from .serializers import LoginSerializer
+from .serializers import LoginSerializer, UserSerializer
 
 
 class AccountViewSet(viewsets.GenericViewSet):
@@ -55,3 +56,9 @@ class AccountViewSet(viewsets.GenericViewSet):
             )
 
         return Response(serialized_data.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]

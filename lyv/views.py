@@ -65,6 +65,10 @@ class RecordingViewSet(viewsets.ModelViewSet):
         """
         serialized_data = NewRecordingSerializer(data=request.data)
         if serialized_data.is_valid():
+            old_recording = Recording.objects.filter(user=request.user,
+                                                     paragraph=serialized_data.validated_data['paragraph'])
+            if old_recording.exists():
+                old_recording.delete()
             recording = Recording.objects.create(
                 paragraph=serialized_data.validated_data['paragraph'],
                 filename=serialized_data.validated_data['filename'],

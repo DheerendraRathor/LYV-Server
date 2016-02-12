@@ -23,13 +23,14 @@ from rest_framework.routers import DefaultRouter
 from django.views.static import serve
 
 from lyv.views import BookViewSet, ParagraphViewSet, RecordingViewSet
-from account.views import AccountViewSet
+from account.views import AccountViewSet, UserViewSet
 
 router = DefaultRouter()
 router.register('book', BookViewSet, base_name='book')
 router.register('paragraph', ParagraphViewSet, base_name='paragraph')
 router.register('recording', RecordingViewSet, base_name='recording')
 router.register('account', AccountViewSet, base_name='account')
+router.register('user', UserViewSet, base_name='user')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
