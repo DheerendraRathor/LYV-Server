@@ -9,7 +9,7 @@ class BookAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ['id', 'book', 'index', 'paragraph']
+    list_display = ['id', 'book', 'index', 'paragraph', 'recorded']
 
 
 @admin.register(Recording)
