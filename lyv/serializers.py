@@ -3,11 +3,12 @@ from .models import Book, Paragraph, Recording
 
 
 class BookSerializer(serializers.ModelSerializer):
-    book = Book.objects.all().filter(pk=id)
-    recorded_paragraphs = Paragraph.objects.all().filter(book=book, recorded=True).count()
-    total_paragraphs = Paragraph.objects.all().filter(book=book).count()
+    recorded_paragraphs = serializers.SerializerMethodField()
     recorded_count = serializers.IntegerField(source='recorded_paragraphs')
     paragraph_count = serializers.IntegerField(source='recorded_count')
+    
+    def get_recorded_paragraphs(self, book: Book):
+        return book.paragraphs.all().filter(recorded=True).count()
 
     class Meta:
         model = Book
