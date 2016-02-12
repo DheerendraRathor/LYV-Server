@@ -83,4 +83,3 @@ class RecordingViewSet(viewsets.ModelViewSet):
             return Response(self.serializer_class(recording).data)
         else:
             return Response(serialized_data.errors, status=HTTP_400_BAD_REQUEST)
-

@@ -4,14 +4,17 @@ from .models import Book, Paragraph, Recording
 
 class BookSerializer(serializers.ModelSerializer):
     recorded_paragraphs = serializers.SerializerMethodField()
+    total_paragraphs = serializers.SerializerMethodField()
     
     def get_recorded_paragraphs(self, book: Book):
         return book.paragraphs.all().filter(recorded=True).count()
 
+    def get_total_paragraphs(self, book: Book):
+        return book.paragraphs.all().count()
+
     class Meta:
         model = Book
-        fields = ['id', 'name', 'language', 'filename', 'recorded_paragraphs']
-
+        fields = ['id', 'name', 'language', 'filename', 'recorded_paragraphs', 'total_paragraphs']
 
 
 class ParagraphSerializer(serializers.ModelSerializer):
