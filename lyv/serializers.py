@@ -18,3 +18,8 @@ class RecordingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recording
+
+
+class NewRecordingSerializer(serializers.Serializer):
+    paragraph = serializers.PrimaryKeyRelatedField(queryset=Paragraph.objects.all())
+    filename = serializers.FileField()

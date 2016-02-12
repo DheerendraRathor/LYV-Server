@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404
-from requests import Response
+from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.status import HTTP_400_BAD_REQUEST
+
 from core.pagination import DefaultCursorPagination
 from rest_framework.decorators import detail_route
 from core.mixins import SerializerClassRequestContextMixin
 
-from .serializers import BookSerializer, ParagraphSerializer, RecordingSerializer
+from .serializers import BookSerializer, ParagraphSerializer, RecordingSerializer, NewRecordingSerializer
 from .models import Book, Paragraph, Recording
 
 
@@ -54,3 +56,27 @@ class RecordingViewSet(viewsets.ModelViewSet):
     queryset = Recording.objects.all()
     serializer_class = RecordingSerializer
     permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create New Recording and update flag for that paragraph
+        ---
+        request_serializer: NewRecordingSerializer
+        """
+        serialized_data = NewRecordingSerializer(data=request.data)
+        if serialized_data.is_valid():
+            recording = Recording.objects.create(
+                paragraph=serialized_data.validated_data['paragraph'],
+                filename=serialized_data.validated_data['filename'],
+                user=request.user,
+            )
+            recording.save()
+
+            paragraph = recording.paragraph
+            paragraph.recorded = True
+            paragraph.save()
+
+            return Response(self.serializer_class(recording).data)
+        else:
+            return Response(serialized_data.errors, status=HTTP_400_BAD_REQUEST)
+
