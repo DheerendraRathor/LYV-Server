@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from lyv.models import Recording, Book
 from .models import UserToken, UserProfile
 from .serializers import LoginSerializer, UserSerializer
 
@@ -62,3 +63,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+    @list_route()
+    def get_information(self, request):
+        book_count = Book.objects.all().filter(paragraphs__recordings__user=request.user).distinct().count()
+        recording_count = Recording.objects.all().filter(user=request.user).count()
+
+        return Response({
+            'book_count' : book_count,
+            'recording_count' : recording_count,
+        })
+

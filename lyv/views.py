@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from core.pagination import DefaultCursorPagination
+from core.pagination import DefaultCursorPagination, RecordingCursorPagination
 from rest_framework.decorators import detail_route
 from core.mixins import SerializerClassRequestContextMixin
 
@@ -12,13 +13,17 @@ from .serializers import BookSerializer, ParagraphSerializer, RecordingSerialize
 from .models import Book, Paragraph, Recording
 
 
+class ParagraphPagination(CursorPagination):
+    ordering = ('recorded', 'index', )
+    page_size = 25
+
 class BookViewSet(SerializerClassRequestContextMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = DefaultCursorPagination
 
-    @detail_route(permission_classes=[IsAuthenticated], pagination_class=DefaultCursorPagination)
+    @detail_route(permission_classes=[IsAuthenticated], pagination_class=ParagraphPagination)
     def get_paragraphs(self, request, pk):
         """
         Get paginated paragraphs of a book id
@@ -26,7 +31,33 @@ class BookViewSet(SerializerClassRequestContextMixin, viewsets.ReadOnlyModelView
         response_serializer: ParagraphSerializer
         """
         book = get_object_or_404(Book, pk=pk)
-        paragraphs = Paragraph.objects.filter(book=book).all()
+        paragraphs = Paragraph.objects.filter(book=book)
+        paragraphs = self.paginate_queryset(paragraphs)
+        paragraphs = self.get_context_serializer_class(ParagraphSerializer, paragraphs, many=True)
+        return self.get_paginated_response(paragraphs.data)
+
+    @detail_route(permission_classes=[IsAuthenticated], pagination_class=DefaultCursorPagination)
+    def get_all_paragraphs(self, request, pk):
+        """
+        Get paginated paragraphs of a book id
+        ---
+        response_serializer: ParagraphSerializer
+        """
+        book = get_object_or_404(Book, pk=pk)
+        paragraphs = Paragraph.objects.filter(book=book)
+        paragraphs = self.paginate_queryset(paragraphs)
+        paragraphs = self.get_context_serializer_class(ParagraphSerializer, paragraphs, many=True)
+        return self.get_paginated_response(paragraphs.data)
+
+    @detail_route(permission_classes=[IsAuthenticated], pagination_class=DefaultCursorPagination)
+    def get_recorded_paragraphs(self, request, pk):
+        """
+        Get paginated paragraphs of a book id
+        ---
+        response_serializer: ParagraphSerializer
+        """
+        book = get_object_or_404(Book, pk=pk)
+        paragraphs = Paragraph.objects.filter(book=book, recorded=True)
         paragraphs = self.paginate_queryset(paragraphs)
         paragraphs = self.get_context_serializer_class(ParagraphSerializer, paragraphs, many=True)
         return self.get_paginated_response(paragraphs.data)
@@ -38,7 +69,7 @@ class ParagraphViewSet(SerializerClassRequestContextMixin, viewsets.ReadOnlyMode
     permission_classes = [IsAuthenticated]
     pagination_class = DefaultCursorPagination
 
-    @detail_route(permission_classes=[], pagination_class=DefaultCursorPagination)
+    @detail_route(permission_classes=[], pagination_class=RecordingCursorPagination)
     def get_recordings(self, request, pk):
         """
         Get paginated recordings of a paragraph id
