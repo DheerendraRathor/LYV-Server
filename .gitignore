@@ -133,3 +133,4 @@ Temporary Items
 
 media/*
 !.gitkeep
+db.sqlite3
