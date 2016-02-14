@@ -134,3 +134,6 @@ Temporary Items
 media/*
 !.gitkeep
 db.sqlite3
+
+settings_config.py
+staticfiles
