@@ -59,20 +59,19 @@ class Recording(models.Model):
 
 
 def get_paragraph_splits(file, is_english=False):
-    split_characters = '\n'
-    if is_english:
-        split_characters = '.\n'
-
     file.open('rb')
     MIN_PARAGRAPH_LENGTH = 50
-    lines = file.read().decode('utf-8').split(split_characters)
+    lines = file.read().decode('utf-8').splitlines()
     actual_paragraphs = []
 
     current_line = ''
     for line in lines:
-        line = ' '.join(line.split())
+        line = ' '.join(line.strip().split())
+        if line == '':
+            continue
+
         current_line = line if current_line == '' else '\n'.join([current_line, line])
-        if len(current_line.split()) > MIN_PARAGRAPH_LENGTH:
+        if len(current_line.split()) > MIN_PARAGRAPH_LENGTH and (not is_english or line[-1] == '.'):
             actual_paragraphs.append(current_line)
             current_line = ''
 
