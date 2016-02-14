@@ -58,10 +58,14 @@ class Recording(models.Model):
     user = models.ForeignKey(User, related_name='user_recording')
 
 
-def get_paragraph_splits(file):
+def get_paragraph_splits(file, is_english=False):
+    split_characters = '\n'
+    if is_english:
+        split_characters = '.\n'
+
     file.open('rb')
     MIN_PARAGRAPH_LENGTH = 50
-    lines = file.read().decode('utf-8').splitlines()
+    lines = file.read().decode('utf-8').split(split_characters)
     actual_paragraphs = []
 
     current_line = ''
@@ -80,7 +84,7 @@ def get_paragraph_splits(file):
 
 @receiver(post_save, sender=Book)
 def book_file_handler(sender, instance: Book, **kwargs):
-    paragraphs = get_paragraph_splits(instance.filename)
+    paragraphs = get_paragraph_splits(instance.filename, instance.language == LanguageChoices.English)
     index = 1
     for paragraph in paragraphs:
         paragraph_item = Paragraph(book=instance, paragraph=paragraph, recorded=False, index=index)
